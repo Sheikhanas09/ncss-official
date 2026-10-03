@@ -1,0 +1,283 @@
+@import "tailwindcss";
+
+/* The site is always light (white background) unless someone picks
+   dark mode with the navbar toggle, which sets data-theme="dark" on <html>. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ============================================================
+   Design tokens. Every colour on the site comes from here.
+   ============================================================ */
+:root {
+  /* Brand (from the NCSS logo) */
+  --brand: #03828e;
+  --brand-deep: #03575f;
+  --pop: #ffc83d;
+  --white: #ffffff;
+
+  /* Text and surfaces (light) */
+  --ink: #32434c;
+  --ink-strong: #1f2b31;
+  --muted: #52626b;
+  --paper: #ffffff;
+  --tint: #eef5f6;
+  --surface: #ffffff;
+  --line: #d3e2e3;
+  --link: #03575f;
+  --focus: #03575f;
+
+  /* Team accents: fill (big blocks), strip (behind small text), on (text on both) */
+  --accent-teal: #03828e;
+  --accent-teal-strip: #03828e;
+  --accent-teal-on: #ffffff;
+  --accent-deep: #03575f;
+  --accent-deep-strip: #03575f;
+  --accent-deep-on: #ffffff;
+  --accent-yellow: #ffc83d;
+  --accent-yellow-strip: #ffc83d;
+  --accent-yellow-on: #32434c;
+  --accent-coral: #ff6f61;
+  --accent-coral-strip: #ff6f61;
+  --accent-coral-on: #1f2b31;
+  --accent-blue: #3d7dd8;
+  --accent-blue-strip: #2a66bd;
+  --accent-blue-on: #ffffff;
+  --accent-sea: #5fb89a;
+  --accent-sea-strip: #5fb89a;
+  --accent-sea-on: #1f2b31;
+  --accent-violet: #8e6ccf;
+  --accent-violet-strip: #7250b8;
+  --accent-violet-on: #ffffff;
+
+  /* Shadow for badges only: soft, like a card hanging off a lanyard */
+  --badge-shadow: 0 1px 0 rgb(3 87 95 / 0.08), 0 12px 24px -12px rgb(3 87 95 / 0.35);
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --ink: #e6f1f2;
+  --muted: #a9c2c6;
+  --paper: #0e2226;
+  --tint: #1c3d44;
+  --surface: #16343a;
+  --line: #2a4d54;
+  --link: #5cc6d0;
+  --focus: #ffc83d;
+  --badge-shadow: 0 1px 0 rgb(0 0 0 / 0.3), 0 14px 28px -12px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+/* Areas painted in brand teal: white focus rings read best there */
+.on-brand {
+  --focus: #ffffff;
+}
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-deep: var(--brand-deep);
+  --color-pop: var(--pop);
+  --color-white: var(--white);
+  --color-ink: var(--ink);
+  --color-ink-strong: var(--ink-strong);
+  --color-muted: var(--muted);
+  --color-paper: var(--paper);
+  --color-tint: var(--tint);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-link: var(--link);
+
+  /* Per-element team accent, set with accentVars() in lib/accent.ts */
+  --color-acc: var(--acc);
+  --color-acc-strip: var(--acc-strip);
+  --color-acc-on: var(--acc-on);
+
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-badge: var(--badge-shadow);
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--pop);
+  color: var(--ink-strong);
+}
+
+/* ============================================================
+   Sponsor reviews marquee (moves left to right)
+   ============================================================ */
+@keyframes marquee-ltr {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.marquee-viewport {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
+.marquee-track {
+  animation: marquee-ltr var(--marquee-duration, 60s) linear infinite;
+}
+
+.marquee:hover .marquee-track,
+.marquee[data-paused] .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+  .marquee-viewport {
+    overflow-x: auto;
+    mask-image: none;
+  }
+  .marquee-dup,
+  .marquee-toggle {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Picture cards: 3D tilt that follows the mouse (see TiltCard)
+   ============================================================ */
+.tilt {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--lift, 0px));
+  transition:
+    transform 450ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 300ms ease;
+  will-change: transform;
+}
+
+.tilt:hover {
+  --lift: -6px;
+  transition:
+    transform 120ms linear,
+    box-shadow 300ms ease;
+}
+
+.tilt-glare {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 300ms ease;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgb(255 255 255 / 0.3), transparent 55%);
+}
+
+.tilt:hover .tilt-glare {
+  opacity: 1;
+}
+
+/* Alumni photos: black and white on computers, colour on hover. Phones always show colour. */
+@media (hover: hover) {
+  .muted-photo {
+    filter: grayscale(1);
+    transition: filter 500ms ease;
+  }
+  .group:hover .muted-photo {
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tilt,
+  .tilt:hover {
+    transform: none;
+    transition: none;
+  }
+  .tilt-glare {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Hero: slow photo zoom, spinning logo ring, scroll cue
+   ============================================================ */
+@keyframes kenburns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    /* Very gentle, so people at the edges of the photo are never cut off */
+    transform: scale(1.03);
+  }
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scroll-cue {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(200%);
+  }
+}
+
+.kenburns {
+  animation: kenburns 24s ease-in-out infinite alternate;
+}
+
+.spin-slow {
+  animation: spin-slow 24s linear infinite;
+}
+
+.scroll-cue {
+  animation: scroll-cue 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kenburns,
+  .spin-slow,
+  .scroll-cue {
+    animation: none;
+  }
+}
