@@ -9,6 +9,13 @@ export type Role = "President" | "Vice President" | "Leadership" | "Team Lead" |
 export type EventRole = "Organized" | "Managed";
 export type EventCategory = "Competition" | "Workshop" | "Seminar" | "Tech talk" | "Community";
 
+/** How a person's photo sits inside its card: which point stays in view (0–100 %) and how far to zoom in. */
+export interface PhotoFocus {
+  x: number;
+  y: number;
+  zoom: number;
+}
+
 export interface ImageRef {
   src: string;
   alt: string;
@@ -91,6 +98,8 @@ export interface Person {
   title?: string;
   /** Path under /public. When missing, initials are shown instead. */
   photo?: string;
+  /** Set with "Adjust photo" in the admin panel */
+  photoFocus?: PhotoFocus;
   socials?: Socials;
   year: string;
 }
@@ -131,6 +140,8 @@ export interface AlumniPerson {
   id: string;
   name: string;
   photo?: string;
+  /** Set with "Adjust photo" in the admin panel */
+  photoFocus?: PhotoFocus;
   socials?: Socials;
 }
 

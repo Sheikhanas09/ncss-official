@@ -34,7 +34,7 @@ export function AlumniCabinet({ cabinet, accents }: AlumniCabinetProps) {
           <span className="flex">
             {faces.map((p) => (
               <span key={p.id} className="@container relative -ml-3 inline-flex h-11 w-11 overflow-hidden rounded-full bg-white ring-2 ring-white first:ml-0">
-                <Avatar name={p.name} photo={p.photo} sizes="44px" />
+                <Avatar name={p.name} photo={p.photo} focus={p.photoFocus} sizes="44px" />
               </span>
             ))}
           </span>
@@ -55,6 +55,7 @@ export function AlumniCabinet({ cabinet, accents }: AlumniCabinetProps) {
                 name={person.name}
                 role={role}
                 photo={person.photo}
+                photoFocus={person.photoFocus}
                 socials={person.socials}
                 accent={brandAccent}
                 stripLabel={`NCSS ${cabinet.year}`}
@@ -71,7 +72,7 @@ export function AlumniCabinet({ cabinet, accents }: AlumniCabinetProps) {
       {cabinet.leads.length === 0 ? (
         <p className="text-muted">No team leads listed for this year.</p>
       ) : (
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-5">
           {cabinet.leads.map((lead, i) => (
             <li key={lead.id}>
               <Reveal index={i}>
@@ -80,6 +81,7 @@ export function AlumniCabinet({ cabinet, accents }: AlumniCabinetProps) {
                   name={lead.name}
                   role={`${lead.teamName} lead`}
                   photo={lead.photo}
+                  photoFocus={lead.photoFocus}
                   socials={lead.socials}
                   accent={accents[lead.teamSlug] ?? brandAccent}
                   stripLabel={lead.teamName}

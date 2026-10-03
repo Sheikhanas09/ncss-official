@@ -5,6 +5,9 @@ import { useId, useRef, useState, type ReactNode } from "react";
 import type { Ctx, Field } from "@/lib/admin/schema";
 import { uploadImage } from "@/lib/admin/supabase";
 import { type Doc, moveItem, str } from "@/lib/admin/utils";
+import { focusStyles } from "@/lib/photo";
+import type { PhotoFocus } from "@/types";
+import { PhotoAdjust } from "./PhotoAdjust";
 
 /** Lets image fields report replaced or removed images, so storage can be cleaned up after saving. */
 export interface MediaApi {
@@ -40,7 +43,12 @@ export function Fields({ fields, value, onChange, ctx, media }: FieldsProps) {
             key={`${field.key}-${i}`}
             field={field}
             value={value[field.key]}
-            onChange={(v) => onChange({ ...value, [field.key]: v })}
+            onChange={(v) =>
+              // A new photo starts with a fresh position
+              onChange(field.type === "image" && field.focusKey ? { ...value, [field.key]: v, [field.focusKey]: undefined } : { ...value, [field.key]: v })
+            }
+            focus={field.type === "image" && field.focusKey ? (value[field.focusKey] as PhotoFocus | undefined) : undefined}
+            onFocusChange={field.type === "image" && field.focusKey ? (f) => onChange({ ...value, [field.focusKey as string]: f }) : undefined}
             ctx={ctx}
             media={media}
           />
@@ -70,11 +78,13 @@ interface FieldViewProps {
   field: Exclude<Field, { type: "heading" }>;
   value: unknown;
   onChange: (value: unknown) => void;
+  focus?: PhotoFocus;
+  onFocusChange?: (focus: PhotoFocus) => void;
   ctx: Ctx;
   media: MediaApi;
 }
 
-function FieldView({ field, value, onChange, ctx, media }: FieldViewProps) {
+function FieldView({ field, value, onChange, focus, onFocusChange, ctx, media }: FieldViewProps) {
   const id = useId();
 
   switch (field.type) {
@@ -127,7 +137,7 @@ function FieldView({ field, value, onChange, ctx, media }: FieldViewProps) {
     }
 
     case "image":
-      return <ImageInput field={field} value={value} onChange={onChange} media={media} />;
+      return <ImageInput field={field} value={value} onChange={onChange} focus={focus} onFocusChange={onFocusChange} media={media} />;
 
     case "gallery":
       return <GalleryInput field={field} value={value} onChange={onChange} media={media} />;
@@ -183,14 +193,19 @@ function ImageInput({
   field,
   value,
   onChange,
+  focus,
+  onFocusChange,
   media,
 }: {
   field: Extract<Field, { type: "image" }>;
   value: unknown;
   onChange: (v: unknown) => void;
+  focus?: PhotoFocus;
+  onFocusChange?: (focus: PhotoFocus) => void;
   media: MediaApi;
 }) {
   const id = useId();
+  const [adjusting, setAdjusting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -205,6 +220,8 @@ function ImageInput({
       const up = await uploadImage(file, field.folder);
       if (src) media.markRemoved(src);
       if (field.variant === "url") onChange(up.url);
+      // Person photos: open the adjuster right away so the face can be placed above the name
+      if (onFocusChange) setAdjusting(true);
       else if (field.variant === "ref") onChange({ ...obj, src: up.url, alt: str(obj.alt) || field.label });
       else onChange({ ...obj, src: up.url, alt: str(obj.alt) || field.label, width: up.width || 1200, height: up.height || 800 });
     } catch (e) {
@@ -224,9 +241,19 @@ function ImageInput({
     <div>
       <Label field={field} />
       <div className="flex flex-wrap items-start gap-4 rounded-2xl border border-dashed border-line p-3">
-        <div className="relative flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-tint">
+        <div
+          className={`relative flex shrink-0 items-center justify-center overflow-hidden bg-tint ${
+            onFocusChange ? "aspect-[4/5] w-28 rounded-2xl" : "h-28 w-28 rounded-xl"
+          }`}
+        >
           {src ? (
-            <Image src={src} alt="" fill unoptimized className="object-cover" />
+            onFocusChange ? (
+              <div className="absolute inset-0" style={focusStyles(focus).wrapper}>
+                <Image src={src} alt="" fill unoptimized className="object-cover" style={focusStyles(focus).image} />
+              </div>
+            ) : (
+              <Image src={src} alt="" fill unoptimized className="object-cover" />
+            )
           ) : (
             <span className="px-2 text-center text-xs text-muted">No image</span>
           )}
@@ -237,6 +264,11 @@ function ImageInput({
             <label htmlFor={id} className={`${smallButton} cursor-pointer ${busy ? "pointer-events-none opacity-50" : ""}`}>
               {busy ? "Uploading…" : src ? "Replace image" : "Upload image"}
             </label>
+            {src && onFocusChange && (
+              <button type="button" className={smallButton} onClick={() => setAdjusting(true)} disabled={busy}>
+                Adjust photo
+              </button>
+            )}
             {src && (
               <button type="button" className={smallButton} onClick={remove} disabled={busy}>
                 Remove
@@ -256,6 +288,17 @@ function ImageInput({
           <Help text={field.help} />
         </div>
       </div>
+      {adjusting && src && onFocusChange && (
+        <PhotoAdjust
+          src={src}
+          focus={focus}
+          onClose={() => setAdjusting(false)}
+          onSave={(f) => {
+            onFocusChange(f);
+            setAdjusting(false);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -26,7 +26,8 @@ export type Field =
   | (Base & { type: "text" | "textarea" | "url" | "email" | "date"; placeholder?: string })
   | (Base & { type: "select"; options: Option[] | ((ctx: Ctx) => Option[]); emptyLabel?: string })
   /** url: a plain image URL string · ref: { src, alt } · sized: { src, alt, width, height } */
-  | (Base & { type: "image"; variant: "url" | "ref" | "sized"; folder: string })
+  /** focusKey: sibling key that stores where the photo sits in its card ("Adjust photo") */
+  | (Base & { type: "image"; variant: "url" | "ref" | "sized"; folder: string; focusKey?: string })
   | (Base & { type: "gallery"; folder: string })
   | (Base & { type: "paragraphs" })
   | (Base & { type: "group"; fields: Field[] })
@@ -291,7 +292,15 @@ export const collections: CollectionConfig[] = [
       },
       { type: "select", key: "teamSlug", label: "Team", options: teamOptions, emptyLabel: "No team (leadership)" },
       { type: "text", key: "year", label: "Cabinet year", required: true, placeholder: "2026-27", help: "Must match the current cabinet year in Site settings to show on the site." },
-      { type: "image", key: "photo", label: "Photo", variant: "url", folder: "people", help: "Portrait photo works best. Without a photo, initials are shown." },
+      {
+        type: "image",
+        key: "photo",
+        label: "Photo",
+        variant: "url",
+        folder: "people",
+        focusKey: "photoFocus",
+        help: "Portrait photo works best. After uploading, move and zoom it so the face sits above the name. Without a photo, initials are shown.",
+      },
       socialsGroup,
     ],
     prepare: (value) =>
@@ -458,7 +467,7 @@ export const collections: CollectionConfig[] = [
         label: "President",
         fields: [
           { type: "text", key: "name", label: "Name", required: true },
-          { type: "image", key: "photo", label: "Photo", variant: "url", folder: "alumni" },
+          { type: "image", key: "photo", label: "Photo", variant: "url", folder: "alumni", focusKey: "photoFocus" },
           socialsGroup,
         ],
       },
@@ -468,7 +477,7 @@ export const collections: CollectionConfig[] = [
         label: "Vice President",
         fields: [
           { type: "text", key: "name", label: "Name", required: true },
-          { type: "image", key: "photo", label: "Photo", variant: "url", folder: "alumni" },
+          { type: "image", key: "photo", label: "Photo", variant: "url", folder: "alumni", focusKey: "photoFocus" },
           socialsGroup,
         ],
       },
@@ -482,7 +491,7 @@ export const collections: CollectionConfig[] = [
         fields: [
           { type: "text", key: "name", label: "Name", required: true },
           { type: "text", key: "title", label: "Title", required: true, placeholder: "General Secretary" },
-          { type: "image", key: "photo", label: "Photo", variant: "url", folder: "alumni" },
+          { type: "image", key: "photo", label: "Photo", variant: "url", folder: "alumni", focusKey: "photoFocus" },
           socialsGroup,
         ],
       },
@@ -496,7 +505,7 @@ export const collections: CollectionConfig[] = [
         fields: [
           { type: "text", key: "name", label: "Name", required: true },
           { type: "select", key: "teamSlug", label: "Team", options: teamOptions, required: true },
-          { type: "image", key: "photo", label: "Photo", variant: "url", folder: "alumni" },
+          { type: "image", key: "photo", label: "Photo", variant: "url", folder: "alumni", focusKey: "photoFocus" },
           socialsGroup,
         ],
       },

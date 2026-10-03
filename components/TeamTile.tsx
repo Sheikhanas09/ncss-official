@@ -5,6 +5,7 @@ import { accentVars } from "@/lib/accent";
 import { initials } from "@/lib/format";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { TiltCard } from "@/components/ui/TiltCard";
+import { focusStyles } from "@/lib/photo";
 
 interface TeamTileProps {
   team: TeamSummary;
@@ -18,7 +19,7 @@ function Face({ person }: { person: Person }) {
   return (
     <span className="relative -ml-2.5 inline-flex h-10 w-10 shrink-0 overflow-hidden rounded-full bg-surface ring-2 ring-white/80 first:ml-0">
       {person.photo ? (
-        <Image src={person.photo} alt="" fill sizes="40px" className="object-cover" />
+        <Image src={person.photo} alt="" fill sizes="40px" className="object-cover" style={focusStyles(person.photoFocus).image} />
       ) : (
         <span className="flex h-full w-full items-center justify-center bg-tint text-xs font-bold text-ink">{initials(person.name)}</span>
       )}

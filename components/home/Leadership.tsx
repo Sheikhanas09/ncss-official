@@ -77,6 +77,7 @@ export async function Leadership() {
                     name={p.name}
                     role={roleLabel(p)}
                     photo={p.photo}
+                    photoFocus={p.photoFocus}
                     socials={p.socials}
                     accent={brandAccent}
                     stripLabel={`${site.shortName} ${p.year}`}

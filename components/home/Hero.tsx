@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { HeroReveal } from "./HeroReveal";
 import { HeroTitle } from "./HeroTitle";
+import { focusStyles } from "@/lib/photo";
 
 /** Logo with the society name spinning around it. */
 function LogoRing({ text, logo }: { text: string; logo: { src: string; alt: string; width: number; height: number } }) {
@@ -41,10 +42,14 @@ export async function Hero() {
   return (
     <section
       aria-labelledby="hero-heading"
-      className="on-brand relative isolate flex min-h-[calc(100svh-4rem)] flex-col justify-end overflow-hidden bg-ink-strong text-white lg:min-h-[calc(100svh-4.5rem)]"
+      className="on-brand relative isolate flex flex-col overflow-hidden bg-ink-strong text-white lg:min-h-[calc(100svh-4.5rem)] lg:justify-end"
     >
-      {/* Team photo behind everything, slowly zooming */}
-      <HeroReveal part="photo" className="absolute inset-0 -z-10">
+      {/*
+        Team photo, slowly zooming.
+        Phones and tablets: the whole photo at its own shape on top, fading into the dark background, text below.
+        Computers: the photo fills the hero behind the text.
+      */}
+      <HeroReveal part="photo" className="relative aspect-[3/2] w-full overflow-hidden lg:absolute lg:inset-0 lg:-z-10 lg:aspect-auto">
         <div className="kenburns absolute inset-0">
           <Image
             src={site.heroImage.src}
@@ -57,11 +62,14 @@ export async function Hero() {
           />
         </div>
         {/* Light fades only behind the text: the bottom, and a little on the left. The rest of the photo stays clear. */}
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-[70%] bg-linear-to-t from-ink-strong/85 via-ink-strong/35 to-transparent" />
-        <div aria-hidden className="absolute inset-y-0 left-0 w-full bg-linear-to-r from-ink-strong/45 via-transparent to-transparent lg:w-2/3" />
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-ink-strong to-transparent lg:h-[70%] lg:from-ink-strong/85 lg:via-ink-strong/35"
+        />
+        <div aria-hidden className="absolute inset-y-0 left-0 hidden w-2/3 bg-linear-to-r from-ink-strong/45 via-transparent to-transparent lg:block" />
       </HeroReveal>
 
-      <Container className="pt-24 pb-14 sm:pb-16 lg:pb-20">
+      <Container className="relative -mt-6 pb-12 sm:-mt-10 sm:pb-16 lg:mt-0 lg:pt-24 lg:pb-20">
         <div className="grid items-end gap-10 lg:grid-cols-[1fr_auto]">
           <div>
             <HeroReveal part="title">
@@ -101,7 +109,7 @@ export async function Hero() {
                     {faces.map((p) => (
                       <span key={p.id} className="relative -ml-3 inline-flex h-11 w-11 overflow-hidden rounded-full bg-tint ring-2 ring-white first:ml-0">
                         {p.photo ? (
-                          <Image src={p.photo} alt="" fill sizes="44px" className="object-cover" />
+                          <Image src={p.photo} alt="" fill sizes="44px" className="object-cover" style={focusStyles(p.photoFocus).image} />
                         ) : (
                           <span className="flex h-full w-full items-center justify-center text-xs font-bold text-ink">{initials(p.name)}</span>
                         )}

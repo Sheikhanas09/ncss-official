@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ArrowLeftIcon, ArrowRightIcon } from "@/components/ui/icons";
 import { Reveal } from "@/components/ui/Reveal";
 import { TiltCard } from "@/components/ui/TiltCard";
+import { focusStyles } from "@/lib/photo";
 
 // Pages for teams and events added later from the admin panel are built on first visit.
 export async function generateStaticParams() {
@@ -75,7 +76,7 @@ export default async function TeamPage(props: PageProps<"/teams/[slug]">) {
                   {people.slice(0, 6).map((p) => (
                     <span key={p.id} className="relative -ml-3 inline-flex h-11 w-11 overflow-hidden rounded-full bg-tint ring-2 ring-white first:ml-0">
                       {p.photo ? (
-                        <Image src={p.photo} alt="" fill sizes="44px" className="object-cover" />
+                        <Image src={p.photo} alt="" fill sizes="44px" className="object-cover" style={focusStyles(p.photoFocus).image} />
                       ) : (
                         <span className="flex h-full w-full items-center justify-center text-xs font-bold text-ink">{initials(p.name)}</span>
                       )}
@@ -95,7 +96,7 @@ export default async function TeamPage(props: PageProps<"/teams/[slug]">) {
       </header>
 
       {/* About + lead */}
-      <Container className="grid gap-12 py-14 sm:py-20 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-16">
+      <Container className="grid gap-12 py-14 sm:py-20 lg:grid-cols-[minmax(0,1fr)_290px] lg:items-start lg:gap-16">
         <div>
           <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">About the team</h2>
           <p className="mt-5 max-w-[60ch] text-lg leading-relaxed sm:text-xl">{team.description}</p>
@@ -127,6 +128,7 @@ export default async function TeamPage(props: PageProps<"/teams/[slug]">) {
                       name={lead.name}
                       role={lead.title?.trim() || `Lead, ${team.name}`}
                       photo={lead.photo}
+                      photoFocus={lead.photoFocus}
                       socials={lead.socials}
                       accent={team.accent}
                       stripLabel={team.name}
@@ -156,7 +158,7 @@ export default async function TeamPage(props: PageProps<"/teams/[slug]">) {
           {team.members.length === 0 ? (
             <EmptyState title="No members listed yet">This team is still being put together.</EmptyState>
           ) : (
-            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-5">
               {team.members.map((m, i) => (
                 <li key={m.id}>
                   <Reveal index={i}>
@@ -165,6 +167,7 @@ export default async function TeamPage(props: PageProps<"/teams/[slug]">) {
                       name={m.name}
                       role={roleLabel(m)}
                       photo={m.photo}
+                      photoFocus={m.photoFocus}
                       socials={m.socials}
                       accent={team.accent}
                       stripLabel={team.name}

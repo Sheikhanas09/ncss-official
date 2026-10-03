@@ -1,4 +1,4 @@
-import type { AccentKey, Socials } from "@/types";
+import type { AccentKey, PhotoFocus, Socials } from "@/types";
 import { accentVars } from "@/lib/accent";
 import { Avatar } from "@/components/ui/Avatar";
 import { TiltCard } from "@/components/ui/TiltCard";
@@ -11,6 +11,7 @@ interface BadgeCardProps {
   name: string;
   role: string;
   photo?: string;
+  photoFocus?: PhotoFocus;
   socials?: Socials;
   accent: AccentKey;
   /** Shown in the coloured label on the photo, usually the team name. */
@@ -25,25 +26,25 @@ interface BadgeCardProps {
 
 const sizes: Record<BadgeSize, { card: string; photo: string; name: string; role: string; img: string }> = {
   lg: {
-    card: "max-w-[340px]",
+    card: "max-w-[290px]",
     photo: "aspect-[4/5]",
-    name: "text-xl sm:text-2xl",
-    role: "text-sm sm:text-base",
-    img: "(min-width: 640px) 340px, 90vw",
+    name: "text-lg sm:text-xl",
+    role: "text-sm",
+    img: "(min-width: 640px) 290px, 50vw",
   },
   md: {
-    card: "max-w-[280px]",
-    photo: "aspect-[3/4]",
-    name: "text-base sm:text-lg",
-    role: "text-xs sm:text-sm",
-    img: "(min-width: 1024px) 280px, (min-width: 640px) 33vw, 50vw",
-  },
-  sm: {
-    card: "max-w-[230px]",
-    photo: "aspect-[3/4]",
+    card: "max-w-[220px]",
+    photo: "aspect-[4/5]",
     name: "text-sm sm:text-base",
     role: "text-xs",
-    img: "(min-width: 1024px) 230px, (min-width: 640px) 33vw, 50vw",
+    img: "(min-width: 1024px) 220px, (min-width: 640px) 30vw, 50vw",
+  },
+  sm: {
+    card: "max-w-[190px]",
+    photo: "aspect-[4/5]",
+    name: "text-sm",
+    role: "text-xs",
+    img: "(min-width: 1024px) 190px, 50vw",
   },
 };
 
@@ -55,6 +56,7 @@ export function BadgeCard({
   name,
   role,
   photo,
+  photoFocus,
   socials,
   accent,
   stripLabel,
@@ -73,6 +75,7 @@ export function BadgeCard({
           <Avatar
             name={name}
             photo={photo}
+            focus={photoFocus}
             sizes={s.img}
             muted={muted}
             className="transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
