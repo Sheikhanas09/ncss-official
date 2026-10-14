@@ -217,13 +217,13 @@ function ImageInput({
     setBusy(true);
     setError("");
     try {
-      const up = await uploadImage(file, field.folder);
+           const up = await uploadImage(file, field.folder);
       if (src) media.markRemoved(src);
       if (field.variant === "url") onChange(up.url);
-      // Person photos: open the adjuster right away so the face can be placed above the name
-      if (onFocusChange) setAdjusting(true);
       else if (field.variant === "ref") onChange({ ...obj, src: up.url, alt: str(obj.alt) || field.label });
       else onChange({ ...obj, src: up.url, alt: str(obj.alt) || field.label, width: up.width || 1200, height: up.height || 800 });
+      // Person photos: open the adjuster right away so the face can be placed above the name
+      if (onFocusChange) setAdjusting(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Upload failed");
     } finally {
