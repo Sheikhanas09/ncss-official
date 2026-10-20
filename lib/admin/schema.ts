@@ -46,6 +46,8 @@ export interface CollectionConfig {
   title?: (item: Doc) => string;
   subtitle?: (item: Doc, ctx: Ctx) => string;
   thumb?: (item: Doc) => string | undefined;
+  /** "logo": show the whole thumbnail on white (with its "Adjust logo" setting) instead of cropping it */
+  thumbFit?: "logo";
   /** Order matters on the site (teams) */
   reorderable?: boolean;
   /** Fills ids, slugs and derived fields right before saving */
@@ -402,6 +404,7 @@ export const collections: CollectionConfig[] = [
       return `${n} ${n === 1 ? "sponsorship" : "sponsorships"}`;
     },
     thumb: (i) => str(i.logo) || undefined,
+    thumbFit: "logo",
     fields: [
       { type: "text", key: "name", label: "Sponsor name", required: true },
       { type: "image", key: "logo", label: "Logo", variant: "url", folder: "sponsors", required: true, focusKey: "logoFocus", focusShape: "logo", help: "PNG with a transparent or white background works best. After uploading, zoom and move it so it fits its box nicely." },

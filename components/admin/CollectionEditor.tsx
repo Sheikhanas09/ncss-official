@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { type CollectionConfig, type Ctx, findMissing } from "@/lib/admin/schema";
 import { clone, collectImageUrls, type Doc, moveItem, str } from "@/lib/admin/utils";
+import { logoStyle } from "@/lib/photo";
+import type { PhotoFocus } from "@/types";
 import { Fields, inputClass, type MediaApi, smallButton } from "./Fields";
 
 interface Props {
@@ -87,9 +89,15 @@ export function CollectionEditor({ config, items, onChange, ctx, media }: Props)
             const nextIndex = visible[pos + 1]?.index;
             return (
               <li key={`${str(item.id) || str(item.year)}-${index}`} className="flex flex-wrap items-center gap-3 rounded-2xl bg-surface p-3 ring-1 ring-line">
-                <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-tint">
-                  {thumb && <Image src={thumb} alt="" fill unoptimized className="object-cover" />}
-                </span>
+                {config.thumbFit === "logo" ? (
+                  <span className="relative h-14 w-24 shrink-0 overflow-hidden rounded-xl bg-white ring-1 ring-line">
+                    {thumb && <Image src={thumb} alt="" fill unoptimized className="object-contain p-1.5" style={logoStyle(item.logoFocus as PhotoFocus | undefined)} />}
+                  </span>
+                ) : (
+                  <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-tint">
+                    {thumb && <Image src={thumb} alt="" fill unoptimized className="object-cover" />}
+                  </span>
+                )}
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-bold">{title(item)}</span>
                   <span className="block truncate text-sm text-muted">{config.subtitle?.(item, ctx)}</span>
