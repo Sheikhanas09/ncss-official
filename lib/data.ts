@@ -95,7 +95,7 @@ export async function getSponsorsForEvent(event: NcssEvent): Promise<Sponsor[]> 
 
 export async function getAllFeedback(): Promise<FeedbackEntry[]> {
   return (await getContent("sponsors")).flatMap((s) =>
-    s.feedback?.quote ? [{ ...s.feedback, sponsorId: s.id, sponsorName: s.name, sponsorLogo: s.logo }] : [],
+    s.feedback?.quote ? [{ ...s.feedback, sponsorId: s.id, sponsorName: s.name, sponsorLogo: s.logo, sponsorLogoFocus: s.logoFocus }] : [],
   );
 }
 

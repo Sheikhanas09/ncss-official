@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Image from "next/image";
+import { logoStyle } from "@/lib/photo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEventBySlug, getEvents, getSponsorsForEvent } from "@/lib/data";
@@ -112,8 +113,8 @@ export default async function EventPage(props: PageProps<"/events/[slug]">) {
                 const types = s.sponsorships.filter((sp) => sp.eventSlug === event.slug).map((sp) => sp.type);
                 return (
                   <li key={s.id} className="flex items-center gap-4 rounded-2xl bg-surface p-3 ring-1 ring-line">
-                    <span className="relative h-14 w-24 shrink-0 rounded-xl bg-white ring-1 ring-line">
-                      <Image src={s.logo} alt={`${s.name} logo`} fill sizes="96px" className="object-contain p-2" />
+                    <span className="relative h-14 w-24 shrink-0 overflow-hidden rounded-xl bg-white ring-1 ring-line">
+                      <Image src={s.logo} alt={`${s.name} logo`} fill sizes="96px" className="object-contain p-2" style={logoStyle(s.logoFocus)} />
                     </span>
                     <span className="text-sm">
                       <span className="block font-semibold">{s.name}</span>

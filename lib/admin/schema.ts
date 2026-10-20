@@ -26,8 +26,8 @@ export type Field =
   | (Base & { type: "text" | "textarea" | "url" | "email" | "date"; placeholder?: string })
   | (Base & { type: "select"; options: Option[] | ((ctx: Ctx) => Option[]); emptyLabel?: string })
   /** url: a plain image URL string · ref: { src, alt } · sized: { src, alt, width, height } */
-  /** focusKey: sibling key that stores where the photo sits in its card ("Adjust photo") */
-  | (Base & { type: "image"; variant: "url" | "ref" | "sized"; folder: string; focusKey?: string })
+  /** focusKey: sibling key that stores where the photo sits in its card ("Adjust photo"). focusShape "logo" adjusts a sponsor logo instead. */
+  | (Base & { type: "image"; variant: "url" | "ref" | "sized"; folder: string; focusKey?: string; focusShape?: "photo" | "logo" })
   | (Base & { type: "gallery"; folder: string })
   | (Base & { type: "paragraphs" })
   | (Base & { type: "group"; fields: Field[] })
@@ -404,7 +404,7 @@ export const collections: CollectionConfig[] = [
     thumb: (i) => str(i.logo) || undefined,
     fields: [
       { type: "text", key: "name", label: "Sponsor name", required: true },
-      { type: "image", key: "logo", label: "Logo", variant: "url", folder: "sponsors", required: true, help: "PNG with a transparent or white background works best." },
+      { type: "image", key: "logo", label: "Logo", variant: "url", folder: "sponsors", required: true, focusKey: "logoFocus", focusShape: "logo", help: "PNG with a transparent or white background works best. After uploading, zoom and move it so it fits its box nicely." },
       { type: "url", key: "website", label: "Website (optional)" },
       {
         type: "list",

@@ -5,7 +5,7 @@ import { useId, useRef, useState, type ReactNode } from "react";
 import type { Ctx, Field } from "@/lib/admin/schema";
 import { uploadImage } from "@/lib/admin/supabase";
 import { type Doc, moveItem, str } from "@/lib/admin/utils";
-import { focusStyles } from "@/lib/photo";
+import { focusStyles, logoStyle } from "@/lib/photo";
 import type { PhotoFocus } from "@/types";
 import { PhotoAdjust } from "./PhotoAdjust";
 
@@ -211,6 +211,7 @@ function ImageInput({
   const [error, setError] = useState("");
   const obj = (value && typeof value === "object" ? value : {}) as Doc;
   const src = field.variant === "url" ? str(value) : str(obj.src);
+  const isLogo = field.focusShape === "logo";
 
   async function onFile(file: File | undefined) {
     if (!file) return;
@@ -222,7 +223,7 @@ function ImageInput({
       if (field.variant === "url") onChange(up.url);
       else if (field.variant === "ref") onChange({ ...obj, src: up.url, alt: str(obj.alt) || field.label });
       else onChange({ ...obj, src: up.url, alt: str(obj.alt) || field.label, width: up.width || 1200, height: up.height || 800 });
-      // Person photos: open the adjuster right away so the face can be placed above the name
+      // Person photos and logos: open the adjuster right away so they can be placed in their card
       if (onFocusChange) setAdjusting(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Upload failed");
@@ -242,12 +243,18 @@ function ImageInput({
       <Label field={field} />
       <div className="flex flex-wrap items-start gap-4 rounded-2xl border border-dashed border-line p-3">
         <div
-          className={`relative flex shrink-0 items-center justify-center overflow-hidden bg-tint ${
-            onFocusChange ? "aspect-[4/5] w-28 rounded-2xl" : "h-28 w-28 rounded-xl"
+          className={`relative flex shrink-0 items-center justify-center overflow-hidden ${
+            onFocusChange && isLogo
+              ? "aspect-[11/4] w-44 rounded-xl bg-white ring-1 ring-line"
+              : onFocusChange
+                ? "aspect-[4/5] w-28 rounded-2xl bg-tint"
+                : "h-28 w-28 rounded-xl bg-tint"
           }`}
         >
           {src ? (
-            onFocusChange ? (
+            onFocusChange && isLogo ? (
+              <Image src={src} alt="" fill unoptimized className="object-contain p-2" style={logoStyle(focus)} />
+            ) : onFocusChange ? (
               <div className="absolute inset-0" style={focusStyles(focus).wrapper}>
                 <Image src={src} alt="" fill unoptimized className="object-cover" style={focusStyles(focus).image} />
               </div>
@@ -266,7 +273,7 @@ function ImageInput({
             </label>
             {src && onFocusChange && (
               <button type="button" className={smallButton} onClick={() => setAdjusting(true)} disabled={busy}>
-                Adjust photo
+                {isLogo ? "Adjust logo" : "Adjust photo"}
               </button>
             )}
             {src && (
@@ -291,6 +298,7 @@ function ImageInput({
       {adjusting && src && onFocusChange && (
         <PhotoAdjust
           src={src}
+          shape={isLogo ? "logo" : "photo"}
           focus={focus}
           onClose={() => setAdjusting(false)}
           onSave={(f) => {

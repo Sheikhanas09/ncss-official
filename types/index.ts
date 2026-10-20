@@ -181,6 +181,8 @@ export interface Sponsor {
   slug: string;
   name: string;
   logo: string;
+  /** Set with "Adjust logo" in the admin panel */
+  logoFocus?: PhotoFocus;
   website?: string;
   sponsorships: Sponsorship[];
   feedback?: SponsorFeedback;
@@ -190,6 +192,7 @@ export interface FeedbackEntry extends SponsorFeedback {
   sponsorId: string;
   sponsorName: string;
   sponsorLogo: string;
+  sponsorLogoFocus?: PhotoFocus;
 }
 
 export interface NcssEvent {

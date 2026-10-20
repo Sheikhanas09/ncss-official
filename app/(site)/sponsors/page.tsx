@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { logoStyle } from "@/lib/photo";
 import Link from "next/link";
 import { getAllFeedback, getEvents, getSponsors } from "@/lib/data";
 import { FeedbackMarquee } from "@/components/FeedbackMarquee";
@@ -62,9 +63,9 @@ export default async function SponsorsPage() {
               {sponsors.slice(0, 6).map((s, i) => (
                 <li
                   key={s.id}
-                  className={`relative h-24 w-44 rounded-2xl bg-white shadow-xl ring-4 ring-white/10 transition duration-300 hover:z-10 hover:scale-110 hover:rotate-0 motion-reduce:transition-none lg:h-28 lg:w-52 ${tilts[i]} ${i % 2 ? "translate-y-4" : ""}`}
+                  className={`relative h-24 w-44 overflow-hidden rounded-2xl bg-white shadow-xl ring-4 ring-white/10 transition duration-300 hover:z-10 hover:scale-110 hover:rotate-0 motion-reduce:transition-none lg:h-28 lg:w-52 ${tilts[i]} ${i % 2 ? "translate-y-4" : ""}`}
                 >
-                  <Image src={s.logo} alt="" fill sizes="208px" className="object-contain p-4" />
+                  <Image src={s.logo} alt="" fill sizes="208px" className="object-contain p-4" style={logoStyle(s.logoFocus)} />
                 </li>
               ))}
             </ul>
@@ -118,8 +119,8 @@ export default async function SponsorsPage() {
                       <li key={`${r.sponsor.id}-${r.eventSlug}-${r.type}`}>
                         <Reveal index={i}>
                           <div className="group flex h-full items-center gap-4 rounded-2xl bg-surface p-3 ring-1 ring-line transition duration-300 hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0">
-                            <span className="relative h-14 w-24 shrink-0 rounded-xl bg-white ring-1 ring-line">
-                              <Image src={r.sponsor.logo} alt={`${r.sponsor.name} logo`} fill sizes="96px" className="object-contain p-2" />
+                            <span className="relative h-14 w-24 shrink-0 overflow-hidden rounded-xl bg-white ring-1 ring-line">
+                              <Image src={r.sponsor.logo} alt={`${r.sponsor.name} logo`} fill sizes="96px" className="object-contain p-2" style={logoStyle(r.sponsor.logoFocus)} />
                             </span>
                             <span className="min-w-0 flex-1 text-sm">
                               <span className="block font-bold">{r.sponsor.name}</span>

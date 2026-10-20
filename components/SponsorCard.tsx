@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { logoStyle } from "@/lib/photo";
 import Link from "next/link";
 import type { Sponsor } from "@/types";
 import { TiltCard } from "@/components/ui/TiltCard";
@@ -17,13 +18,14 @@ export function SponsorCard({ sponsor, eventSlugs, headingLevel: Heading = "h3" 
     <TiltCard className="h-full rounded-[24px] hover:shadow-xl" max={6}>
       <article className="group flex h-full flex-col overflow-hidden rounded-[24px] bg-surface ring-1 ring-line">
         {/* Logos sit on white in both themes so they always read correctly */}
-        <div className="relative flex h-36 items-center justify-center border-b border-line bg-white px-8">
+        <div className="relative flex h-36 items-center justify-center overflow-hidden border-b border-line bg-white px-8">
           <div className="relative h-20 w-full max-w-[220px]">
             <Image
               src={sponsor.logo}
               alt={`${sponsor.name} logo`}
               fill
               sizes="220px"
+              style={logoStyle(sponsor.logoFocus)}
               className="object-contain transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
             />
           </div>

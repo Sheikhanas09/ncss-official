@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { logoStyle } from "@/lib/photo";
 import type { FeedbackEntry } from "@/types";
 import { initials } from "@/lib/format";
 import { QuoteIcon } from "@/components/ui/icons";
@@ -10,8 +11,8 @@ export function FeedbackQuote({ feedback, className = "" }: { feedback: Feedback
         <span aria-hidden className="flex h-11 w-11 items-center justify-center rounded-xl bg-pop text-ink-strong">
           <QuoteIcon />
         </span>
-        <span className="relative h-9 w-24 rounded-lg bg-white ring-1 ring-line">
-          <Image src={feedback.sponsorLogo} alt={`${feedback.sponsorName} logo`} fill sizes="96px" className="object-contain p-1.5" />
+        <span className="relative h-9 w-24 overflow-hidden rounded-lg bg-white ring-1 ring-line">
+          <Image src={feedback.sponsorLogo} alt={`${feedback.sponsorName} logo`} fill sizes="96px" className="object-contain p-1.5" style={logoStyle(feedback.sponsorLogoFocus)} />
         </span>
       </div>
 
