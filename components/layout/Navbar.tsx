@@ -34,7 +34,7 @@ export async function Navbar() {
 
         <div className="flex items-center gap-1">
           <ThemeToggle />
-          <MobileMenu />
+          <MobileMenu email={site.email} instagram={site.instagram} />
         </div>
       </Container>
     </header>
