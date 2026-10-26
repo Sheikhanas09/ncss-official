@@ -3,7 +3,8 @@ import type { AboutIcon } from "@/types";
 import { getSiteInfo, getStats } from "@/lib/data";
 import { accentVars } from "@/lib/accent";
 import { CountUp } from "@/components/ui/CountUp";
-import { CodeIcon, HeartHandIcon, MicIcon, ToolsIcon, TrophyIcon } from "@/components/ui/icons";
+import { Button } from "@/components/ui/Button";
+import { CheckIcon, CodeIcon, FlagIcon, HeartHandIcon, MicIcon, ToolsIcon, TrophyIcon } from "@/components/ui/icons";
 import { Reveal } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/Section";
 
@@ -25,9 +26,10 @@ export async function About() {
     { value: stats.members, label: "members this year" },
     { value: stats.sponsors, label: stats.sponsors === 1 ? "sponsor" : "sponsors" },
   ].filter((n) => n.value > 0);
+  const joinPoints = site.copy.aboutJoinPoints.filter((p) => p.trim());
 
   return (
-    <Section id="about" title={site.copy.aboutTitle}>
+    <Section id="about" title={site.copy.aboutTitle} intro={site.copy.aboutIntro || undefined}>
       {/* Bento: the story card takes 2×2 on desktop, activities fill the rest */}
       <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         <li className="md:col-span-2 lg:row-span-2">
@@ -39,9 +41,10 @@ export async function About() {
               <p className="inline-block self-start rounded-full bg-white/10 px-3 py-1 text-sm font-semibold">
                 {site.shortName} at {site.city}
               </p>
-              <p className="mt-6 mb-10 max-w-[26ch] font-display text-2xl leading-snug font-bold tracking-tight sm:text-4xl">
+              <p className={`mt-6 max-w-[26ch] font-display text-2xl leading-snug font-bold tracking-tight sm:text-4xl ${site.copy.aboutStory ? "" : "mb-10"}`}>
                 {site.copy.aboutStatement}
               </p>
+              {site.copy.aboutStory && <p className="mt-5 mb-10 max-w-[52ch] text-white/85 sm:text-lg">{site.copy.aboutStory}</p>}
 
               {numbers.length > 0 && (
                 <dl className="mt-auto grid grid-cols-3 items-start gap-4 border-t border-white/20 pt-6 sm:pt-8">
@@ -79,6 +82,75 @@ export async function About() {
           );
         })}
       </ul>
+
+      {/* Mission, vision and why join */}
+      {(site.copy.aboutMission || site.copy.aboutVision || joinPoints.length > 0) && (
+        <div className="mt-5 grid gap-5 lg:grid-cols-3">
+          {(site.copy.aboutMission || site.copy.aboutVision) && (
+            <Reveal>
+              <div className="grid h-full gap-5">
+                {[
+                  { label: "Our mission", text: site.copy.aboutMission, Icon: FlagIcon },
+                  { label: "Our vision", text: site.copy.aboutVision, Icon: TrophyIcon },
+                ]
+                  .filter((b) => b.text)
+                  .map(({ label, text, Icon }) => (
+                    <article key={label} className="flex flex-col rounded-[24px] bg-tint p-6 sm:p-7">
+                      <span className="flex items-center gap-2 text-sm font-semibold tracking-wide text-link uppercase">
+                        <Icon width={18} height={18} />
+                        {label}
+                      </span>
+                      <p className="mt-3 font-display text-lg leading-snug font-bold sm:text-xl">{text}</p>
+                    </article>
+                  ))}
+              </div>
+            </Reveal>
+          )}
+
+          {joinPoints.length > 0 && (
+            <Reveal index={1} className="lg:col-span-2">
+              <div className="flex h-full flex-col rounded-[24px] bg-surface p-6 ring-1 ring-line sm:p-8">
+                <h3 className="text-2xl font-bold sm:text-3xl">{site.copy.aboutJoinTitle}</h3>
+                <ul className="mt-6 grid gap-x-8 gap-y-5 sm:grid-cols-2 sm:text-lg">
+                  {joinPoints.map((point, i) => (
+                    <li key={`${i}-${point}`} className="flex items-start gap-3">
+                      <span aria-hidden className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-pop text-ink-strong">
+                        <CheckIcon width={14} height={14} />
+                      </span>
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-auto pt-7">
+                  <Button href="/#contact" arrow>
+                    Join a team
+                  </Button>
+                </div>
+              </div>
+            </Reveal>
+          )}
+        </div>
+      )}
+
+      {/* How an event comes together */}
+      {site.copy.aboutSteps.length > 0 && (
+        <div className="mt-16">
+          {site.copy.aboutStepsTitle && <h3 className="text-2xl font-bold sm:text-3xl">{site.copy.aboutStepsTitle}</h3>}
+          <ol className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {site.copy.aboutSteps.map((step, i) => (
+              <li key={`${i}-${step.title}`}>
+                <Reveal index={i}>
+                  <div className="h-full border-t-4 border-brand pt-5">
+                    <span className="font-display text-5xl leading-none font-extrabold text-link tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                    <h4 className="mt-3 text-lg font-bold">{step.title}</h4>
+                    <p className="mt-1 text-muted">{step.text}</p>
+                  </div>
+                </Reveal>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
     </Section>
   );
 }

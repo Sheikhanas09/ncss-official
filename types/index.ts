@@ -28,6 +28,12 @@ export interface Socials {
 
 export type AboutIcon = "code" | "tools" | "trophy" | "mic" | "heart";
 
+/** A titled short text, e.g. the mission or one step of how an event comes together */
+export interface AboutBlock {
+  title: string;
+  text: string;
+}
+
 export interface AboutItem {
   title: string;
   text: string;
@@ -42,7 +48,17 @@ export interface SiteCopy {
   teamsIntro: string;
   aboutTitle: string;
   aboutStatement: string;
+  /** Text under the About heading */
+  aboutIntro: string;
+  /** Short paragraph under the big statement */
+  aboutStory: string;
   aboutItems: AboutItem[];
+  aboutMission: string;
+  aboutVision: string;
+  aboutJoinTitle: string;
+  aboutJoinPoints: string[];
+  aboutStepsTitle: string;
+  aboutSteps: AboutBlock[];
   eventsTitle: string;
   eventsIntro: string;
   sponsorsTitle: string;
