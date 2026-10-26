@@ -2,11 +2,12 @@
 
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
-import type { ImageRef } from "@/types";
+import type { GalleryImage } from "@/types";
+import { coverStyle } from "@/lib/photo";
 import { Lightbox } from "@/components/Lightbox";
 
 /** Thumbnail grid. Click a photo to open it large. Thumbnails lazy load. */
-export function Gallery({ images }: { images: ImageRef[] }) {
+export function Gallery({ images }: { images: GalleryImage[] }) {
   const [index, setIndex] = useState<number | null>(null);
   const thumbs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -36,6 +37,7 @@ export function Gallery({ images }: { images: ImageRef[] }) {
                 fill
                 sizes={i === 0 ? "(min-width: 640px) 66vw, 100vw" : "(min-width: 640px) 33vw, 50vw"}
                 className="object-cover transition-transform duration-500 group-hover:scale-110 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                style={coverStyle(img.focus)}
               />
               <span className="sr-only">Open photo {i + 1} of {images.length} large</span>
             </button>

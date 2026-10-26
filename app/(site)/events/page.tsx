@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { coverStyle } from "@/lib/photo";
 import { getEvents } from "@/lib/data";
 import { EventFilters } from "@/components/EventFilters";
 import { Container } from "@/components/ui/Container";
@@ -24,7 +25,7 @@ export default async function EventsPage() {
       <header className="on-brand relative isolate overflow-hidden bg-brand-deep text-white">
         {latest && (
           <>
-            <Image src={latest.coverImage.src} alt="" fill preload sizes="100vw" className="-z-20 object-cover" />
+            <Image src={latest.coverImage.src} alt="" fill preload sizes="100vw" className="-z-20 object-cover" style={coverStyle(latest.coverFocus)} />
             <div aria-hidden className="absolute inset-0 -z-10 bg-linear-to-r from-brand-deep via-brand-deep/85 to-brand-deep/40" />
           </>
         )}

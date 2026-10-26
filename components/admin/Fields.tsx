@@ -5,7 +5,7 @@ import { useId, useRef, useState, type ReactNode } from "react";
 import type { Ctx, Field } from "@/lib/admin/schema";
 import { uploadImage } from "@/lib/admin/supabase";
 import { type Doc, moveItem, str } from "@/lib/admin/utils";
-import { focusStyles, logoStyle } from "@/lib/photo";
+import { coverStyle, focusStyles, logoStyle } from "@/lib/photo";
 import type { PhotoFocus } from "@/types";
 import { PhotoAdjust } from "./PhotoAdjust";
 
@@ -212,6 +212,7 @@ function ImageInput({
   const obj = (value && typeof value === "object" ? value : {}) as Doc;
   const src = field.variant === "url" ? str(value) : str(obj.src);
   const isLogo = field.focusShape === "logo";
+  const coverFrame = field.focusShape === "cover" ? field.focusFrames?.[0] : undefined;
 
   async function onFile(file: File | undefined) {
     if (!file) return;
@@ -243,8 +244,11 @@ function ImageInput({
       <Label field={field} />
       <div className="flex flex-wrap items-start gap-4 rounded-2xl border border-dashed border-line p-3">
         <div
+          style={onFocusChange && coverFrame ? { aspectRatio: coverFrame.aspect } : undefined}
           className={`relative flex shrink-0 items-center justify-center overflow-hidden ${
-            onFocusChange && isLogo
+            onFocusChange && coverFrame
+              ? "h-28 rounded-xl bg-tint"
+              : onFocusChange && isLogo
               ? "aspect-[11/4] w-44 rounded-xl bg-white ring-1 ring-line"
               : onFocusChange
                 ? "aspect-[4/5] w-28 rounded-2xl bg-tint"
@@ -252,7 +256,9 @@ function ImageInput({
           }`}
         >
           {src ? (
-            onFocusChange && isLogo ? (
+            onFocusChange && coverFrame ? (
+              <Image src={src} alt="" fill unoptimized className="object-cover" style={coverStyle(focus)} />
+            ) : onFocusChange && isLogo ? (
               <Image src={src} alt="" fill unoptimized className="object-contain p-2" style={logoStyle(focus)} />
             ) : onFocusChange ? (
               <div className="absolute inset-0" style={focusStyles(focus).wrapper}>
@@ -298,7 +304,8 @@ function ImageInput({
       {adjusting && src && onFocusChange && (
         <PhotoAdjust
           src={src}
-          shape={isLogo ? "logo" : "photo"}
+          shape={isLogo ? "logo" : coverFrame ? "cover" : "photo"}
+          frames={field.focusFrames}
           focus={focus}
           onClose={() => setAdjusting(false)}
           onSave={(f) => {
@@ -328,7 +335,9 @@ function GalleryInput({
   const fileRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState("");
   const [error, setError] = useState("");
+  const [adjusting, setAdjusting] = useState<number | null>(null);
   const photos = (Array.isArray(value) ? value : []) as Doc[];
+  const frames = field.focusFrames;
 
   async function onFiles(files: FileList | null) {
     if (!files?.length) return;
@@ -358,8 +367,11 @@ function GalleryInput({
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {photos.map((p, i) => (
             <li key={`${str(p.src)}-${i}`} className="rounded-2xl border border-line bg-surface p-2">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-tint">
-                <Image src={str(p.src)} alt="" fill unoptimized className="object-cover" />
+              <div
+                style={frames?.[0] && { aspectRatio: frames[0].aspect }}
+                className="relative aspect-[4/3] overflow-hidden rounded-xl bg-tint"
+              >
+                <Image src={str(p.src)} alt="" fill unoptimized className="object-cover" style={frames ? coverStyle(p.focus as PhotoFocus | undefined) : undefined} />
               </div>
               <input
                 aria-label={`Photo ${i + 1} description`}
@@ -375,6 +387,11 @@ function GalleryInput({
                 <button type="button" className={smallButton} aria-label={`Move photo ${i + 1} later`} onClick={() => onChange(moveItem(photos, i, i + 1))} disabled={i === photos.length - 1}>
                   →
                 </button>
+                {frames && (
+                  <button type="button" className={smallButton} aria-label={`Adjust photo ${i + 1}`} onClick={() => setAdjusting(i)}>
+                    Adjust
+                  </button>
+                )}
                 <button
                   type="button"
                   className={smallButton}
@@ -398,7 +415,20 @@ function GalleryInput({
         {progress && <span className="text-sm text-muted">{progress}</span>}
         {error && <span className="text-sm font-semibold text-link">{error}</span>}
       </div>
-      <Help text="You can pick several photos at once." />
+      <Help text={frames ? "You can pick several photos at once. Use Adjust to choose which part of a photo shows in its square." : "You can pick several photos at once."} />
+      {adjusting !== null && frames && photos[adjusting] && (
+        <PhotoAdjust
+          src={str(photos[adjusting].src)}
+          shape="cover"
+          frames={frames}
+          focus={photos[adjusting].focus as PhotoFocus | undefined}
+          onClose={() => setAdjusting(null)}
+          onSave={(f) => {
+            onChange(photos.map((x, j) => (j === adjusting ? { ...x, focus: f } : x)));
+            setAdjusting(null);
+          }}
+        />
+      )}
     </fieldset>
   );
 }

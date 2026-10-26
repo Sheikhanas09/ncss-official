@@ -5,7 +5,7 @@ import { accentVars } from "@/lib/accent";
 import { initials } from "@/lib/format";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { TiltCard } from "@/components/ui/TiltCard";
-import { focusStyles } from "@/lib/photo";
+import { coverStyle, focusStyles } from "@/lib/photo";
 
 interface TeamTileProps {
   team: TeamSummary;
@@ -46,6 +46,7 @@ export function TeamTile({ team, index, wide = false }: TeamTileProps) {
             fill
             sizes={wide ? "(min-width: 1024px) 66vw, (min-width: 768px) 100vw, 100vw" : "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"}
             className="-z-20 object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            style={coverStyle(team.coverFocus)}
           />
         )}
         {/* Darker towards the bottom so the text is always readable */}

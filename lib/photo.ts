@@ -4,11 +4,11 @@ import type { PhotoFocus } from "@/types";
 /** Without a saved focus, keep the upper part of portraits in view: that is where faces usually are. */
 export const DEFAULT_FOCUS: PhotoFocus = { x: 50, y: 30, zoom: 1 };
 
-export function clampFocus(f: Partial<PhotoFocus> | undefined): PhotoFocus {
+export function clampFocus(f: Partial<PhotoFocus> | undefined, defaults: PhotoFocus = DEFAULT_FOCUS): PhotoFocus {
   const n = (v: unknown, d: number) => (typeof v === "number" && Number.isFinite(v) ? v : d);
   return {
-    x: Math.min(100, Math.max(0, n(f?.x, DEFAULT_FOCUS.x))),
-    y: Math.min(100, Math.max(0, n(f?.y, DEFAULT_FOCUS.y))),
+    x: Math.min(100, Math.max(0, n(f?.x, defaults.x))),
+    y: Math.min(100, Math.max(0, n(f?.y, defaults.y))),
     zoom: Math.min(3, Math.max(1, n(f?.zoom, 1))),
   };
 }
@@ -43,4 +43,22 @@ export function logoStyle(focus: Partial<PhotoFocus> | undefined): CSSProperties
   const f = clampLogoFocus(focus);
   if (f.x === 50 && f.y === 50 && f.zoom === 1) return {};
   return { transform: `translate(${f.x - 50}%, ${f.y - 50}%) scale(${f.zoom})` };
+}
+
+/** Cover and gallery photos start centred, like they were before they could be adjusted. */
+export const DEFAULT_COVER_FOCUS: PhotoFocus = { x: 50, y: 50, zoom: 1 };
+
+export const clampCoverFocus = (f: Partial<PhotoFocus> | undefined) => clampFocus(f, DEFAULT_COVER_FOCUS);
+
+/**
+ * Style for a cover or gallery photo (object-cover): which part stays in view and the zoom,
+ * set on the image itself so it works inside any box, including ones that animate.
+ */
+export function coverStyle(focus: Partial<PhotoFocus> | undefined): CSSProperties {
+  const f = clampCoverFocus(focus);
+  if (f.x === 50 && f.y === 50 && f.zoom === 1) return {};
+  return {
+    objectPosition: `${f.x}% ${f.y}%`,
+    ...(f.zoom > 1 && { transform: `scale(${f.zoom})`, transformOrigin: `${f.x}% ${f.y}%` }),
+  };
 }

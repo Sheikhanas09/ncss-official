@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { coverStyle } from "@/lib/photo";
 import Link from "next/link";
 import type { NcssEvent } from "@/types";
 import { dateParts, formatDate } from "@/lib/format";
@@ -49,6 +50,7 @@ export function EventCard({ event, featured = false, headingLevel: Heading = "h3
             fill
             sizes="(min-width: 1024px) 66vw, 100vw"
             className={`-z-20 ${imageZoom}`}
+            style={coverStyle(event.coverFocus)}
           />
           <div aria-hidden className="absolute inset-0 -z-10 bg-linear-to-t from-ink-strong/95 via-ink-strong/55 to-transparent" />
 
@@ -85,6 +87,7 @@ export function EventCard({ event, featured = false, headingLevel: Heading = "h3
             fill
             sizes="(min-width: 1024px) 360px, (min-width: 768px) 50vw, 100vw"
             className={imageZoom}
+            style={coverStyle(event.coverFocus)}
           />
           <div className="absolute top-3 left-3">
             <DateBadge iso={event.date} />

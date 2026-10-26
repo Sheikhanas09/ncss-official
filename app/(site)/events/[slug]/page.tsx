@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Image from "next/image";
-import { logoStyle } from "@/lib/photo";
+import { coverStyle, logoStyle } from "@/lib/photo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEventBySlug, getEvents, getSponsorsForEvent } from "@/lib/data";
@@ -51,7 +51,7 @@ export default async function EventPage(props: PageProps<"/events/[slug]">) {
       {/* Full-width cover with the title on top */}
       <header className="on-brand relative isolate flex min-h-[62svh] flex-col overflow-hidden bg-ink-strong text-white">
         <div className="kenburns absolute inset-0 -z-20">
-          <Image src={event.coverImage.src} alt={event.coverImage.alt} fill preload sizes="100vw" className="object-cover" />
+          <Image src={event.coverImage.src} alt={event.coverImage.alt} fill preload sizes="100vw" className="object-cover" style={coverStyle(event.coverFocus)} />
         </div>
         <div aria-hidden className="absolute inset-0 -z-10 bg-linear-to-t from-ink-strong/95 via-ink-strong/55 to-ink-strong/25" />
 

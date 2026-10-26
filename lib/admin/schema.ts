@@ -22,13 +22,20 @@ interface Base {
   required?: boolean;
 }
 
+/** One place a photo is shown on the website, previewed in "Adjust photo". aspect is a CSS aspect-ratio, e.g. "16/10". */
+export interface FocusFrame {
+  label: string;
+  aspect: string;
+}
+
 export type Field =
   | (Base & { type: "text" | "textarea" | "url" | "email" | "date"; placeholder?: string })
   | (Base & { type: "select"; options: Option[] | ((ctx: Ctx) => Option[]); emptyLabel?: string })
   /** url: a plain image URL string · ref: { src, alt } · sized: { src, alt, width, height } */
-  /** focusKey: sibling key that stores where the photo sits in its card ("Adjust photo"). focusShape "logo" adjusts a sponsor logo instead. */
-  | (Base & { type: "image"; variant: "url" | "ref" | "sized"; folder: string; focusKey?: string; focusShape?: "photo" | "logo" })
-  | (Base & { type: "gallery"; folder: string })
+  /** focusKey: sibling key that stores where the photo sits in its card ("Adjust photo"). focusShape "logo" adjusts a sponsor logo, "cover" a photo shown in the focusFrames shapes. */
+  | (Base & { type: "image"; variant: "url" | "ref" | "sized"; folder: string; focusKey?: string; focusShape?: "photo" | "logo" | "cover"; focusFrames?: FocusFrame[] })
+  /** focusFrames: lets each photo be adjusted (saved in its "focus") */
+  | (Base & { type: "gallery"; folder: string; focusFrames?: FocusFrame[] })
   | (Base & { type: "paragraphs" })
   | (Base & { type: "group"; fields: Field[] })
   | (Base & { type: "list"; itemLabel: string; fields: Field[]; newItem: (ctx: Ctx) => Doc; summary: (item: Doc) => string })
@@ -348,7 +355,21 @@ export const collections: CollectionConfig[] = [
       { type: "text", key: "shortDescription", label: "One-line description", required: true },
       { type: "textarea", key: "description", label: "Full description", required: true },
       { type: "select", key: "accent", label: "Team colour", options: accentOptions, required: true },
-      { type: "image", key: "coverImage", label: "Tile and header photo", variant: "ref", folder: "teams", help: "Landscape photo of the team." },
+      {
+        type: "image",
+        key: "coverImage",
+        label: "Tile and header photo",
+        variant: "ref",
+        folder: "teams",
+        focusKey: "coverFocus",
+        focusShape: "cover",
+        focusFrames: [
+          { label: "Team tile", aspect: "1/1" },
+          { label: "Wide team tile", aspect: "2/1" },
+          { label: "Team page header", aspect: "16/7" },
+        ],
+        help: "Landscape photo of the team. After uploading, move and zoom it so the faces stay in view.",
+      },
     ],
     prepare: (value) =>
       withIds(tidy(value) as Doc[], { prefix: "team", nameKey: "name", slug: true }).map((t, i) => ({ ...t, order: i + 1 })),
@@ -399,8 +420,23 @@ export const collections: CollectionConfig[] = [
       },
       { type: "textarea", key: "summary", label: "Short summary", required: true, help: "One or two lines shown on the event cards." },
       { type: "paragraphs", key: "description", label: "Full description" },
-      { type: "image", key: "coverImage", label: "Cover photo", variant: "ref", folder: "events", required: true },
-      { type: "gallery", key: "gallery", label: "Photo gallery", folder: "events" },
+      {
+        type: "image",
+        key: "coverImage",
+        label: "Cover photo",
+        variant: "ref",
+        folder: "events",
+        required: true,
+        focusKey: "coverFocus",
+        focusShape: "cover",
+        focusFrames: [
+          { label: "Event card", aspect: "16/10" },
+          { label: "Latest event (big card)", aspect: "3/2" },
+          { label: "Event page header", aspect: "16/7" },
+        ],
+        help: "After uploading, move and zoom it so the important part stays in view.",
+      },
+      { type: "gallery", key: "gallery", label: "Photo gallery", folder: "events", focusFrames: [{ label: "Gallery thumbnail", aspect: "1/1" }] },
     ],
     prepare: (value) =>
       withIds(tidy(value) as Doc[], { prefix: "e", nameKey: "title", slug: true }).map((e) => ({

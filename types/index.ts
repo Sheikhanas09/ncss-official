@@ -21,6 +21,11 @@ export interface ImageRef {
   alt: string;
 }
 
+export interface GalleryImage extends ImageRef {
+  /** Which part shows in the square thumbnail. Set with "Adjust" in the admin panel */
+  focus?: PhotoFocus;
+}
+
 export interface Socials {
   linkedin?: string;
   instagram?: string;
@@ -129,6 +134,8 @@ export interface Team {
   accent: AccentKey;
   /** Background photo for the team tile. Without it the tile uses the team colour. */
   coverImage?: ImageRef;
+  /** Set with "Adjust photo" in the admin panel */
+  coverFocus?: PhotoFocus;
   /** Old field, no longer needed: the lead is the member with role "Team Lead" in this team. */
   leadId?: string;
   /** Old field, no longer needed: members are the people with role "Member" in this team. */
@@ -224,7 +231,9 @@ export interface NcssEvent {
   /** One string per paragraph. */
   description: string[];
   coverImage: ImageRef;
-  gallery: ImageRef[];
+  /** Set with "Adjust photo" in the admin panel */
+  coverFocus?: PhotoFocus;
+  gallery: GalleryImage[];
   /** Optional extra sponsor links. Sponsors listing this event in their sponsorships are linked automatically. */
   sponsorIds?: string[];
 }

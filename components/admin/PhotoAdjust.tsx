@@ -3,14 +3,27 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import type { PhotoFocus } from "@/types";
-import { clampFocus, clampLogoFocus, DEFAULT_FOCUS, DEFAULT_LOGO_FOCUS, focusStyles, logoStyle } from "@/lib/photo";
+import type { FocusFrame } from "@/lib/admin/schema";
+import {
+  clampCoverFocus,
+  clampFocus,
+  clampLogoFocus,
+  coverStyle,
+  DEFAULT_COVER_FOCUS,
+  DEFAULT_FOCUS,
+  DEFAULT_LOGO_FOCUS,
+  focusStyles,
+  logoStyle,
+} from "@/lib/photo";
 import { smallButton } from "./Fields";
 
 interface Props {
   src: string;
   focus?: PhotoFocus;
-  /** "logo": a sponsor logo on its white box instead of a person card */
-  shape?: "photo" | "logo";
+  /** "logo": a sponsor logo on its white box. "cover": a photo shown in the shapes of `frames`. Default: a person card. */
+  shape?: "photo" | "logo" | "cover";
+  /** cover only: the first frame is the one to drag in, the others are smaller previews */
+  frames?: FocusFrame[];
   onSave: (focus: PhotoFocus) => void;
   onClose: () => void;
 }
@@ -20,10 +33,12 @@ interface Props {
  * with the name panel drawn on top, so faces can be moved clear of it.
  * Drag the photo (mouse or finger), or use the sliders.
  * With shape "logo" it shows a sponsor logo box instead, where the logo can also be made smaller.
+ * With shape "cover" it shows the photo in every shape it has on the website (team tiles, event cards, headers…).
  */
-export function PhotoAdjust({ src, focus, shape = "photo", onSave, onClose }: Props) {
+export function PhotoAdjust({ src, focus, shape = "photo", frames = [], onSave, onClose }: Props) {
   const isLogo = shape === "logo";
-  const clamp = isLogo ? clampLogoFocus : clampFocus;
+  const isCover = shape === "cover" && frames.length > 0;
+  const clamp = isLogo ? clampLogoFocus : isCover ? clampCoverFocus : clampFocus;
   const [f, setF] = useState<PhotoFocus>(clamp(focus));
   const frameRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; y: number; start: PhotoFocus } | null>(null);
@@ -82,11 +97,41 @@ export function PhotoAdjust({ src, focus, shape = "photo", onSave, onClose }: Pr
         aria-modal="true"
         aria-label={isLogo ? "Adjust logo" : "Adjust photo"}
         className={`grid max-h-full w-full gap-6 overflow-y-auto rounded-3xl bg-paper p-5 shadow-2xl sm:p-7 ${
-          isLogo ? "max-w-xl" : "max-w-2xl sm:grid-cols-[260px_1fr]"
+          isLogo ? "max-w-xl" : isCover ? "max-w-5xl lg:grid-cols-[minmax(0,1fr)_280px]" : "max-w-2xl sm:grid-cols-[260px_1fr]"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        {isLogo ? (
+        {isCover ? (
+          /* Main shape to drag in, then smaller previews of the other places the photo is shown */
+          <div>
+            <p className="mb-1.5 text-sm font-semibold">{frames[0].label}</p>
+            <div
+              ref={frameRef}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={() => (drag.current = null)}
+              onPointerCancel={() => (drag.current = null)}
+              // As wide as fits, but never taller than about half the screen
+              style={{ aspectRatio: frames[0].aspect, width: `min(100%, calc(45vh * ${frames[0].aspect}))` }}
+              className="relative mx-auto cursor-grab touch-none overflow-hidden rounded-[22px] bg-tint ring-1 ring-line select-none active:cursor-grabbing"
+            >
+              <Image src={src} alt="" fill unoptimized draggable={false} className="pointer-events-none object-cover" style={coverStyle(f)} />
+            </div>
+            <p className="mt-2 text-center text-xs text-muted">Drag the photo to move it</p>
+            {frames.length > 1 && (
+              <div className="mt-4 flex flex-wrap items-end gap-4">
+                {frames.slice(1).map((fr) => (
+                  <div key={fr.label} className="grid gap-1.5">
+                    <div style={{ aspectRatio: fr.aspect }} className="relative h-24 overflow-hidden rounded-xl bg-tint ring-1 ring-line">
+                      <Image src={src} alt="" fill unoptimized draggable={false} className="pointer-events-none object-cover" style={coverStyle(f)} />
+                    </div>
+                    <p className="text-xs text-muted">{fr.label}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : isLogo ? (
           /* Same shape as the logo box on a sponsor card */
           <div>
             <div
@@ -132,14 +177,16 @@ export function PhotoAdjust({ src, focus, shape = "photo", onSave, onClose }: Pr
             <p className="mt-1 text-sm text-muted">
               {isLogo
                 ? "Zoom in or out and move the logo until it sits nicely in the white box. All logo boxes on the website use this setting."
-                : "Keep the face above the name panel. This is exactly how the card looks on the website."}
+                : isCover
+                  ? "Move and zoom the photo so the important part stays in view. The small previews show the other places it appears on the website."
+                  : "Keep the face above the name panel. This is exactly how the card looks on the website."}
             </p>
           </div>
           {slider("Zoom", "zoom", isLogo ? 0.5 : 1, 3, 0.05)}
           {slider("Left ↔ Right", "x", 0, 100, 1)}
           {slider("Up ↕ Down", "y", 0, 100, 1)}
           <div className="flex flex-wrap gap-2 pt-2">
-            <button type="button" className={smallButton} onClick={() => setF(isLogo ? DEFAULT_LOGO_FOCUS : DEFAULT_FOCUS)}>
+            <button type="button" className={smallButton} onClick={() => setF(isLogo ? DEFAULT_LOGO_FOCUS : isCover ? DEFAULT_COVER_FOCUS : DEFAULT_FOCUS)}>
               Reset
             </button>
             <button type="button" className={`${smallButton} ml-auto`} onClick={onClose}>

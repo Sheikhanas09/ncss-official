@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ArrowLeftIcon, ArrowRightIcon } from "@/components/ui/icons";
 import { Reveal } from "@/components/ui/Reveal";
 import { TiltCard } from "@/components/ui/TiltCard";
-import { focusStyles } from "@/lib/photo";
+import { coverStyle, focusStyles } from "@/lib/photo";
 
 // Pages for teams and events added later from the admin panel are built on first visit.
 export async function generateStaticParams() {
@@ -47,7 +47,7 @@ export default async function TeamPage(props: PageProps<"/teams/[slug]">) {
       <header className="on-brand relative isolate flex min-h-[56svh] flex-col overflow-hidden bg-acc-strip text-white">
         {team.coverImage && (
           <div className="kenburns absolute inset-0 -z-20">
-            <Image src={team.coverImage.src} alt="" fill preload sizes="100vw" className="object-cover" />
+            <Image src={team.coverImage.src} alt="" fill preload sizes="100vw" className="object-cover" style={coverStyle(team.coverFocus)} />
           </div>
         )}
         <div aria-hidden className="absolute inset-0 -z-10 bg-linear-to-t from-ink-strong/95 via-ink-strong/60 to-ink-strong/25" />
@@ -201,6 +201,7 @@ export default async function TeamPage(props: PageProps<"/teams/[slug]">) {
                         fill
                         sizes="(min-width: 1024px) 180px, (min-width: 640px) 33vw, 208px"
                         className="-z-20 object-cover transition-transform duration-700 group-hover:scale-110 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                        style={coverStyle(t.coverFocus)}
                       />
                     )}
                     <div aria-hidden className="absolute inset-0 -z-10 bg-linear-to-t from-ink-strong/90 via-ink-strong/40 to-transparent" />
